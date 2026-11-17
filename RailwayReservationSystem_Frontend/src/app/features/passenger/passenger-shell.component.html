@@ -1,0 +1,12 @@
+<section class="passenger-hero">
+  <div class="hero-copy">
+    <p class="eyebrow"><span class="eyebrow-rule"></span>WELCOME TO YOUR PASSENGER DESK</p>
+    <h1>Every journey,<br /><span>made simpler.</span></h1>
+    <p>Search trains, plan your travel, and keep your reservations together in one place.</p>
+  </div>
+  <div class="hero-visual" role="img" aria-label="Passenger train crossing a green landscape"><span>TRAVEL WELL. ARRIVE READY.</span></div>
+</section>
+
+<app-journey-search [vm]="vm()" [actions]="actions()" />
+<app-train-results [vm]="vm()" [actions]="actions()" />
+<app-reservation-form [vm]="vm()" [actions]="actions()" />

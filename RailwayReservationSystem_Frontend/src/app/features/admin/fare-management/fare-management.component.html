@@ -1,0 +1,10 @@
+<div class="content-heading"><div><p class="eyebrow">FARE MANAGEMENT</p><h2>{{ vm().fareEditId ? 'Edit fare' : 'Set a class fare' }}</h2></div></div>
+<form class="admin-form" (ngSubmit)="actions().saveFare()">
+  <div class="form-grid">
+    <label class="wide-field">Train<select name="fareTrain" [ngModel]="vm().selectedTrainId" (ngModelChange)="actions().onTrainSelected($event)" required><option value="" disabled>Select train</option>@for (train of vm().trains; track train.trainId) {<option [value]="train.trainId">{{ train.trainNumber }} · {{ train.trainName }}</option>}</select></label>
+    <label>Travel class<input name="fareClass" [(ngModel)]="vm().fareDraft.classType" placeholder="e.g. SL or AC" required /></label>
+    <label>Fare amount<input name="fareAmount" type="number" min="0.01" step="0.01" [(ngModel)]="vm().fareDraft.amount" required /></label>
+  </div>
+  <div class="form-actions"><span>Fare is stored against the selected train and class.</span><div class="form-action-buttons">@if (vm().fareEditId) {<button class="secondary-button" type="button" (click)="actions().cancelFareEdit()">Cancel</button>}<button class="action-button" type="submit" [disabled]="vm().savingAdmin">{{ vm().savingAdmin ? 'Saving...' : vm().fareEditId ? 'Save changes' : 'Add fare' }}</button></div></div>
+</form>
+@if (vm().fares.length > 0) {<div class="compact-list"><h3>Fares for selected train</h3>@for (fare of vm().fares; track fare.fareId) {<div class="managed-row"><strong>#{{ fare.fareId }}</strong><span>{{ fare.classType }}</span><small>{{ fare.amount | currency:'INR':'symbol':'1.0-2' }}</small><span class="row-actions"><button type="button" (click)="actions().editFare(fare.fareId)">Edit</button><button type="button" (click)="actions().deleteFare(fare.fareId)">Delete</button></span></div>}</div>}

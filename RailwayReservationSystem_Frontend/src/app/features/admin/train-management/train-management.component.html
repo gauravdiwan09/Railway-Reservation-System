@@ -1,0 +1,22 @@
+<div class="content-heading"><div><p class="eyebrow">SERVICE SETUP</p><h2>{{ vm().trainEditId ? 'Edit train' : 'Register a train' }}</h2></div></div>
+<form class="admin-form" (ngSubmit)="actions().saveTrain()">
+  <div class="form-grid">
+    <label>Train number<input name="trainNumber" [(ngModel)]="vm().trainDraft.trainNumber" required /></label>
+    <label>Train name<input name="trainName" [(ngModel)]="vm().trainDraft.trainName" required /></label>
+    <label>Origin<input name="trainSource" [(ngModel)]="vm().trainDraft.source" required /></label>
+    <label>Destination<input name="trainDestination" [(ngModel)]="vm().trainDraft.destination" required /></label>
+    <label>Seat capacity<input name="totalSeats" type="number" min="1" [(ngModel)]="vm().trainDraft.totalSeats" required /></label>
+    <label>Total route distance (km)<input name="totalDistanceKm" type="number" min="1" step="0.01" [(ngModel)]="vm().trainDraft.totalDistanceKm" required /></label>
+  </div>
+  <div class="route-stops-editor">
+    <div class="section-heading"><div><p class="eyebrow">ROUTE</p><h3>Intermediate stations</h3></div><button class="secondary-button" type="button" (click)="actions().addTrainStop()">+ Add stop</button></div>
+    @for (stop of vm().trainDraft.intermediateStations; track $index; let stopIndex = $index) {
+      <div class="form-grid route-stop-row">
+        <label>Stop {{ stopIndex + 1 }} station<input [name]="'stationName' + stopIndex" [(ngModel)]="stop.stationName" required /></label>
+        <label>Distance from origin (km)<input [name]="'stationDistance' + stopIndex" type="number" min="0.01" step="0.01" [(ngModel)]="stop.distanceFromOriginKm" required /></label>
+        <button class="secondary-button" type="button" (click)="actions().removeTrainStop(stopIndex)">Remove stop</button>
+      </div>
+    }
+  </div>
+  <div class="form-actions"><span>Train details are published to the service network.</span><div class="form-action-buttons">@if (vm().trainEditId) {<button class="secondary-button" type="button" (click)="actions().cancelTrainEdit()">Cancel</button>}<button class="action-button" type="submit" [disabled]="vm().savingAdmin">{{ vm().savingAdmin ? 'Saving...' : vm().trainEditId ? 'Save changes' : 'Add train' }}</button></div></div>
+</form>

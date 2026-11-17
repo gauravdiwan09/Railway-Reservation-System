@@ -1,0 +1,80 @@
+<div class="utility-bar">
+  <div class="utility-inner">
+    <span>INDIAN RAILWAYS</span>
+    <span>Service desk <strong>139</strong></span>
+    <span>English <span class="utility-chevron">&#9662;</span></span>
+  </div>
+</div>
+
+<header class="masthead">
+  <a class="brand" href="#top" aria-label="Indian Railways home">
+    <span class="brand-emblem" aria-hidden="true"><span>🚆</span></span>
+    <span class="brand-name"><strong>INDIAN RAILWAYS</strong><small>RESERVATION PORTAL</small></span>
+  </a>
+  <div class="masthead-right">
+    <span class="secure-label"><span class="secure-dot"></span>{{ isAdmin() ? 'ADMINISTRATOR' : 'PASSENGER PORTAL' }}</span>
+    @if (authenticated()) {
+      <span class="account-name">{{ profile()?.fullName ?? profile()?.email ?? 'My account' }}</span>
+      <button class="signout-button" type="button" (click)="signOut()">Sign out</button>
+    }
+  </div>
+</header>
+
+<nav class="main-nav" aria-label="Main navigation">
+  <div class="nav-inner">
+    @if (isAdmin()) {
+      <a class="nav-current" routerLink="/admin/overview">Admin desk</a>
+      <a routerLink="/admin/trains">Train operations</a>
+      <span class="nav-role">CONTROL ROOM</span>
+    } @else {
+      <a routerLink="/home" [class.nav-current]="passengerPage() === 'home'">Home</a>
+      <a routerLink="/home" fragment="journey" (click)="showJourneySearch($event)">Book a ticket</a>
+      @if (authenticated()) {
+        <a routerLink="/bookings" [class.nav-current]="passengerPage() === 'bookings'">My bookings</a>
+        <span class="nav-role">PASSENGER SERVICES</span>
+      } @else {
+        <a href="#pnr-status">PNR status</a>
+        <button class="nav-auth-button" type="button" (click)="toggleLogin()">Sign in / Register</button>
+      }
+    }
+  </div>
+</nav>
+
+<router-outlet />
+<main id="top" [class.booking-history-page]="!isAdmin() && authenticated() && passengerPage() === 'bookings'">
+  @if (isAdmin()) {
+    <app-admin-dashboard [vm]="adminDashboardViewModel()" [actions]="adminDashboardActions" />
+  } @else if (authenticated() && passengerPage() === 'bookings') {
+    <app-booking-history [vm]="passengerDashboardViewModel()" [actions]="passengerDashboardActions" />
+  } @else {
+    <app-passenger-dashboard [vm]="passengerDashboardViewModel()" [actions]="passengerDashboardActions" />
+  }
+</main>
+
+@if (!authenticated() && loginOpen()) {
+  <div class="modal-backdrop" (click)="closeLogin()">
+    <section class="auth-modal" role="dialog" aria-modal="true" aria-labelledby="auth-title" (click)="$event.stopPropagation()">
+      <button class="modal-close" type="button" aria-label="Close" (click)="closeLogin()">&times;</button>
+      <div class="modal-heading"><span class="brand-emblem" aria-hidden="true"><span>🚆</span></span><div><p class="eyebrow">PASSENGER ACCESS</p><h2 id="auth-title">{{ authMode() === 'login' ? 'Welcome back' : 'Create passenger account' }}</h2></div></div>
+      @if (authMode() === 'register') {
+        <form class="modal-form" (ngSubmit)="registerPassenger()">
+          <label>Full name<input name="fullName" autocomplete="name" [(ngModel)]="fullName" required /></label>
+          <label>Email address<input name="email" type="email" autocomplete="email" [(ngModel)]="email" required /></label>
+          <label>Phone<input name="phone" type="tel" autocomplete="tel" [(ngModel)]="phone" /></label>
+          <label>Password<input name="password" type="password" autocomplete="new-password" [(ngModel)]="password" required /></label>
+          <button class="action-button modal-submit" type="submit" (click)="validateRegistration()" [disabled]="signingIn()">{{ signingIn() ? 'Creating account...' : 'Register as passenger' }}</button>
+        </form>
+      } @else {
+        <form class="modal-form" (ngSubmit)="signIn()">
+          <label>Email address<input name="email" type="email" autocomplete="username" [(ngModel)]="email" required /></label>
+          <label>Password<input name="password" type="password" autocomplete="current-password" [(ngModel)]="password" required /></label>
+          <button class="action-button modal-submit" type="submit" [disabled]="signingIn()">{{ signingIn() ? 'Signing in...' : 'Sign in' }}</button>
+        </form>
+      }
+      @if (errorMessage()) {<p class="modal-error" role="alert">{{ errorMessage() }}</p>}
+      <button class="modal-switch" type="button" (click)="toggleAuthMode()">{{ authMode() === 'login' ? 'New passenger? Create an account' : 'Already registered? Sign in' }}</button>
+    </section>
+  </div>
+}
+
+<footer class="site-footer"><span>INDIAN RAILWAYS</span><span>Passenger and network services</span><a routerLink="/home">Back to top &#8593;</a></footer>

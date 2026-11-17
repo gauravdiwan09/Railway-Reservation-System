@@ -1,0 +1,14 @@
+<section class="results-panel" id="results" aria-labelledby="results-title">
+  <div class="panel-title"><div><p class="eyebrow">AVAILABLE SERVICES</p><h2 id="results-title">Train search results</h2></div><span class="journey-step">{{ vm().results.length }} TRAINS</span></div>
+  @if (vm().searching) {
+    <div class="empty-bookings">Searching available services...</div>
+  } @else if (vm().results.length > 0) {
+    <div class="table-wrap"><table><thead><tr><th>TRAIN</th><th>DEPARTURE</th><th>ARRIVAL</th><th>CLASS AVAILABILITY</th><th>SCHEDULE</th><th></th></tr></thead><tbody>
+      @for (train of vm().results; track train.scheduleId) {
+        <tr class="train-result-row" role="button" tabindex="0" [attr.aria-label]="'Select ' + train.trainName" (click)="actions().prepareBooking(train)" (keydown.enter)="actions().prepareBooking(train)" (keydown.space)="$event.preventDefault(); actions().prepareBooking(train)"><td><strong>{{ train.trainNumber }} · {{ train.trainName }}</strong><small>{{ train.source }} to {{ train.destination }}</small></td><td>{{ actions().formatTime(train.departureTime) }}</td><td>{{ actions().formatTime(train.arrivalTime) }}<small class="trip-duration">{{ duration(train) }} journey</small>@if (train.arrivalNextDay) {<small class="next-day">NEXT DAY</small>}</td><td><div class="class-availability" aria-label="Available seats by class">@if (vm().loadingClassAvailability && vm().seatClasses(train.scheduleId).length === 0) {<span class="class-loading">Checking seats</span>} @else if (vm().seatClasses(train.scheduleId).length > 0) {@for (item of vm().seatClasses(train.scheduleId); track item.classType) {<span class="class-seat-count" [class.no-seats]="item.availableSeats === 0"><strong>{{ item.classType }}</strong><span>{{ item.availableSeats }} left</span></span>}} @else {<span class="no-class-seats">No seats listed</span>}</div></td><td>#{{ train.scheduleId }}</td><td><span class="row-cue">Choose <span aria-hidden="true">&#8594;</span></span></td></tr>
+      }
+    </tbody></table></div>
+  } @else {
+    <div class="empty-bookings">Train results will appear here after you search.</div>
+  }
+</section>

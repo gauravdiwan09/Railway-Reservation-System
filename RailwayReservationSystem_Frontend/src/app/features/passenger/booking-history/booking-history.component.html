@@ -1,0 +1,24 @@
+@if (vm().authenticated) {
+  <section class="booking-panel" id="my-trips" aria-labelledby="bookings-title">
+    <div class="panel-title"><div><p class="eyebrow">YOUR TRAVEL ACTIVITY</p><h2 id="bookings-title">My bookings</h2></div><span class="journey-step">{{ vm().bookings.length }} RECORDS</span></div>
+    <nav class="booking-filters" aria-label="Filter bookings">
+      <button type="button" [class.active]="filter === 'all'" [attr.aria-pressed]="filter === 'all'" (click)="filter = 'all'">All <span>{{ bookingCount('all') }}</span></button>
+      <button type="button" [class.active]="filter === 'upcoming'" [attr.aria-pressed]="filter === 'upcoming'" (click)="filter = 'upcoming'">Upcoming <span>{{ bookingCount('upcoming') }}</span></button>
+      <button type="button" [class.active]="filter === 'past'" [attr.aria-pressed]="filter === 'past'" (click)="filter = 'past'">Past <span>{{ bookingCount('past') }}</span></button>
+      <button type="button" [class.active]="filter === 'cancelled'" [attr.aria-pressed]="filter === 'cancelled'" (click)="filter = 'cancelled'">Cancelled <span>{{ bookingCount('cancelled') }}</span></button>
+    </nav>
+    @if (vm().errorMessage) {<p class="error-message" role="alert">{{ vm().errorMessage }}</p>}
+    @if (vm().loadingBookings) {
+      <div class="empty-bookings">Loading your booking history...</div>
+    } @else if (filteredBookings.length > 0) {
+      <div class="booking-list">@for (booking of filteredBookings; track booking.bookingId) {
+        <article class="booking-row"><div><small>PNR</small><strong>{{ booking.pnr }}</strong></div><div><small>JOURNEY DATE</small><strong>{{ booking.journeyDate }}</strong></div><div><small>CLASS / PASSENGERS</small><strong>{{ booking.classType }} · {{ booking.passengers.length || booking.numberOfTickets }}</strong></div><div><small>FARE</small><strong>{{ booking.totalFare | currency:'INR':'symbol':'1.0-2' }}</strong></div><span class="booking-status" [class.cancelled]="booking.status.toLowerCase() === 'cancelled'">{{ booking.status }}</span><div class="booking-actions"><button type="button" (click)="actions().viewBooking(booking.bookingId)">Details</button><button type="button" (click)="actions().downloadTicket(booking)">Ticket PDF</button>@if (booking.status.toLowerCase() !== 'cancelled') {<button type="button" (click)="actions().cancelBooking(booking)">Cancel</button>}</div></article>
+      }</div>
+    } @else {
+      <div class="empty-bookings"><span>{{ vm().bookings.length === 0 ? 'No bookings to show yet.' : 'No bookings match this filter.' }}</span>@if (vm().bookings.length === 0) {<a href="#journey">Find your first train <span aria-hidden="true">&#8594;</span></a>}</div>
+    }
+    @if (vm().bookingDetails; as details) {
+      <div class="booking-detail"><div><strong>PNR {{ details.pnr }}</strong><span>{{ details.status }} · {{ details.classType }} · {{ details.journeyDate }}</span></div><ul>@for (passenger of details.passengers; track passenger.passengerId) {<li>{{ passenger.name }}, {{ passenger.age }} · {{ passenger.gender }} · Seat {{ passenger.seatId }}</li>}</ul><button class="text-button" type="button" (click)="actions().downloadTicket(details)">Download ticket PDF</button></div>
+    }
+  </section>
+}

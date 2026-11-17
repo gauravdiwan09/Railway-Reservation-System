@@ -1,0 +1,51 @@
+<section class="admin-intro" id="admin-home">
+  <div>
+    <p class="eyebrow"><span class="eyebrow-rule"></span>OPERATIONS CONTROL</p>
+    <h1>Administrator dashboard</h1>
+    <p class="intro-subtitle">Manage the services and schedules available across your railway network.</p>
+  </div>
+  <div class="date-block"><span>SYSTEM DATE</span><strong>{{ vm().today }}</strong></div>
+</section>
+
+<div class="admin-summary" aria-label="Network summary">
+  <div><span>REGISTERED TRAINS</span><strong>{{ vm().trains.length }}</strong></div>
+  <div><span>SCHEDULES IN VIEW</span><strong>{{ vm().scheduleCount }}</strong></div>
+  <div><span>ADMIN ACCESS</span><strong class="access-value"><span class="secure-dot"></span>Enabled</strong></div>
+</div>
+
+<div class="admin-layout">
+  <aside class="admin-sidebar" aria-label="Administration sections">
+    <p class="sidebar-label">MANAGE SERVICES</p>
+    <button type="button" [class.selected]="vm().adminView === 'overview'" (click)="actions().selectAdminView('overview')"><span>01</span>Overview</button>
+    <button id="train-register" type="button" [class.selected]="vm().adminView === 'trains'" (click)="actions().selectAdminView('trains')"><span>02</span>Trains</button>
+    <button type="button" [class.selected]="vm().adminView === 'schedules'" (click)="actions().selectAdminView('schedules')"><span>03</span>Schedules</button>
+    <button type="button" [class.selected]="vm().adminView === 'fares'" (click)="actions().selectAdminView('fares')"><span>04</span>Fares</button>
+    <button type="button" [class.selected]="vm().adminView === 'seats'" (click)="actions().selectAdminView('seats')"><span>05</span>Seats</button>
+  </aside>
+
+  <section class="admin-content">
+    @if (vm().adminMessage) {
+      <p class="notice" [class.notice-error]="vm().adminMessage?.tone === 'error'" role="status">{{ vm().adminMessage?.text }}</p>
+    }
+
+    @if (vm().adminView === 'overview') {
+      <app-admin-overview [vm]="vm()" [actions]="actions()" />
+    }
+
+    @if (vm().adminView === 'trains') {
+      <app-train-management [vm]="vm()" [actions]="actions()" />
+    }
+
+    @if (vm().adminView === 'schedules') {
+      <app-schedule-management [vm]="vm()" [actions]="actions()" />
+    }
+
+    @if (vm().adminView === 'fares') {
+      <app-fare-management [vm]="vm()" [actions]="actions()" />
+    }
+
+    @if (vm().adminView === 'seats') {
+      <app-seat-management [vm]="vm()" [actions]="actions()" />
+    }
+  </section>
+</div>

@@ -1,0 +1,27 @@
+@if (!vm().authenticated) {
+  <section class="status-lookup" id="pnr-status" aria-labelledby="pnr-title">
+    <div class="status-lookup-copy"><p class="eyebrow">TICKET SERVICES</p><h2 id="pnr-title">Check PNR status</h2><p>Enter your PNR to check the current status of a reservation.</p></div>
+    <form class="status-lookup-form" (ngSubmit)="checkPnr()">
+      <label class="visually-hidden" for="public-pnr">PNR number</label>
+      <input id="public-pnr" name="pnrQuery" [(ngModel)]="pnrQuery" placeholder="Enter your PNR number" autocomplete="off" required />
+      <button class="action-button" type="submit" [disabled]="vm().checkingPnr">{{ vm().checkingPnr ? 'Checking...' : 'Check status' }}</button>
+    </form>
+    @if (vm().pnrMessage) {<p class="pnr-feedback" [class.pnr-error]="vm().pnrError" role="status">{{ vm().pnrMessage }}</p>}
+    @if (vm().pnrBooking; as status) {
+      <div class="public-status-result"><span>PNR <strong>{{ status.pnr }}</strong></span><span>Journey date <strong>{{ status.journeyDate }}</strong></span><span>Status <strong class="booking-status" [class.cancelled]="status.status.toLowerCase() === 'cancelled'">{{ status.status }}</strong></span></div>
+    }
+  </section>
+}
+
+<section class="journey-panel" id="journey" aria-labelledby="journey-title">
+  <div class="panel-title"><div><p class="eyebrow">PLAN YOUR TRAVEL</p><h2 id="journey-title">Search trains</h2></div><span class="journey-step"><strong>01</strong> JOURNEY DETAILS</span></div>
+  <form class="search-form" (ngSubmit)="search()">
+    <label>From<input name="source" type="text" placeholder="Departure city" [(ngModel)]="searchDraft.source" required /></label>
+    <button class="route-swap" type="button" aria-label="Swap departure and arrival" title="Swap departure and arrival" (click)="swapStations()"><span aria-hidden="true">&#8646;</span></button>
+    <label>To<input name="destination" type="text" placeholder="Arrival city" [(ngModel)]="searchDraft.destination" required /></label>
+    <label>Journey date<input name="journeyDate" type="date" [min]="vm().today" [(ngModel)]="searchDraft.journeyDate" required /></label>
+    <button class="action-button search-button" type="submit" [disabled]="vm().searching">{{ vm().searching ? 'Searching...' : 'Search trains' }}<span aria-hidden="true">&#8594;</span></button>
+  </form>
+  @if (vm().errorMessage) {<p class="error-message" role="alert">{{ vm().errorMessage }}</p>}
+</section>
+

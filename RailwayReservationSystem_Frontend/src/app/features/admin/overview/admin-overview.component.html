@@ -1,0 +1,10 @@
+<div class="content-heading"><div><p class="eyebrow">NETWORK</p><h2>Train services</h2></div><button class="action-button" type="button" (click)="actions().selectAdminView('trains')">+ Add train</button></div>
+@if (vm().trains.length > 0) {
+  <div class="table-wrap"><table><thead><tr><th>TRAIN</th><th>SERVICE</th><th>ROUTE</th><th>CAPACITY</th><th>ACTIONS</th></tr></thead><tbody>
+    @for (train of vm().trains; track train.trainId) {
+      <tr><td><strong>{{ train.trainNumber }}</strong><small>ID {{ train.trainId }}</small></td><td>{{ train.trainName }}</td><td>{{ train.source }} <span class="table-arrow">&#8594;</span> {{ train.destination }}</td><td>{{ train.totalSeats }} seats</td><td class="row-actions"><button type="button" (click)="actions().editTrain(train.trainId)">Edit</button><button type="button" (click)="actions().deleteTrain(train)">Delete</button></td></tr>
+    }
+  </tbody></table></div>
+} @else {
+  <div class="empty-admin"><strong>No trains registered</strong><span>Add a train to begin configuring schedules, fares, and seats.</span><button class="action-button" type="button" (click)="actions().selectAdminView('trains')">Register first train</button></div>
+}

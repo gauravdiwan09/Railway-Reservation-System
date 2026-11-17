@@ -1,0 +1,53 @@
+@if (vm().selectedJourney; as journey) {
+  <section class="reservation-panel" aria-labelledby="reservation-title">
+    <div class="panel-title"><div><p class="eyebrow">RESERVATION</p><h2 id="reservation-title">{{ journey.trainNumber }} · {{ journey.trainName }}</h2></div><button class="text-button" type="button" (click)="actions().closeBooking()">Close</button></div>
+    <p class="reservation-route">{{ journey.source }} <span>&#8594;</span> {{ journey.destination }} <strong>{{ actions().formatTime(journey.departureTime) }} – {{ actions().formatTime(journey.arrivalTime) }}</strong> <span>{{ vm().journeyForm.journeyDate }}</span></p>
+    @if (vm().checkingJourney) {
+      <div class="empty-bookings">Checking operating day, fares, and available seats...</div>
+    } @else if (vm().scheduleOperating === false) {
+      <p class="error-message" role="alert">{{ vm().journeyMessage }}</p>
+    } @else if (vm().bookingDetails; as booked) {
+      <div class="booking-confirmation"><strong>Booking confirmed</strong><span>PNR {{ booked.pnr }}</span><button class="action-button" type="button" (click)="actions().downloadTicket(booked)">Download ticket PDF</button></div>
+    } @else {
+      <form class="reservation-form" (ngSubmit)="actions().submitBooking()">
+        <div class="reservation-meta">
+          <label>Class<select name="journeyClass" [ngModel]="vm().selectedClassType" (ngModelChange)="actions().setSelectedClassType($event)"><option value="" disabled>Select class</option>@for (fare of vm().journeyFares; track fare.fareId) {<option [value]="fare.classType">{{ fare.classType }} · {{ fare.amount | currency:'INR':'symbol':'1.0-2' }}</option>}</select></label>
+          <div><small>AVAILABLE IN CLASS</small><strong>{{ vm().availableJourneySeats.length }}</strong></div>
+          <div><small>FARE / PASSENGER</small><strong>{{ vm().journeyFarePerPassenger | currency:'INR':'symbol':'1.0-2' }}</strong></div>
+          <div><small>TOTAL</small><strong>{{ vm().bookingTotal | currency:'INR':'symbol':'1.0-2' }}</strong></div>
+        </div>
+        @if (vm().journeyMessage) {<p class="error-message" role="alert">{{ vm().journeyMessage }}</p>}
+        <div class="passenger-form-heading"><h3>Passenger details</h3><button class="text-button" type="button" [disabled]="vm().passengerDrafts.length >= 6" (click)="actions().addPassenger()">+ Add passenger ({{ vm().passengerDrafts.length }}/6)</button></div>
+        @for (passenger of vm().passengerDrafts; track $index; let passengerIndex = $index) {
+          <div class="passenger-fields">
+            <label>Passenger {{ passengerIndex + 1 }} name<input [name]="'passengerName' + passengerIndex" [(ngModel)]="passenger.name" required /></label>
+            <label>Age<input [name]="'passengerAge' + passengerIndex" type="number" min="1" max="120" [(ngModel)]="passenger.age" required /></label>
+            <label>Gender<select [name]="'passengerGender' + passengerIndex" [(ngModel)]="passenger.gender"><option>Female</option><option>Male</option><option>Other</option></select></label>
+            @if (vm().passengerDrafts.length > 1) {<button class="remove-passenger" type="button" (click)="actions().removePassenger(passengerIndex)" aria-label="Remove passenger">Remove</button>}
+          </div>
+        }
+        <section class="booking-review" aria-labelledby="booking-review-title">
+          <div class="booking-review-heading"><h3 id="booking-review-title">Review your booking</h3><span>{{ vm().passengerDrafts.length }} passenger(s)</span></div>
+          <div class="booking-review-details"><span><small>JOURNEY</small><strong>{{ journey.source }} to {{ journey.destination }} · {{ vm().journeyForm.journeyDate }}</strong></span><span><small>CLASS</small><strong>{{ vm().selectedClassType || 'Select a class' }}</strong></span><span><small>FARE / PASSENGER</small><strong>{{ vm().journeyFarePerPassenger | currency:'INR':'symbol':'1.0-2' }}</strong></span><span class="review-total"><small>TOTAL FARE</small><strong>{{ vm().bookingTotal | currency:'INR':'symbol':'1.0-2' }}</strong></span></div>
+          <p>Seats are assigned automatically after confirmation. Available in selected class: {{ vm().availableJourneySeats.length }}.</p>
+        </section>
+        <div class="reservation-actions"><span>{{ vm().availableJourneySeats.length }} seat(s) available · Up to 6 passengers per booking</span><button class="action-button" type="submit" [disabled]="vm().submittingBooking || !vm().selectedJourneyFare">{{ vm().submittingBooking ? 'Confirming...' : 'Confirm booking' }}</button></div>
+      </form>
+    }
+  </section>
+
+  @if (vm().paymentOpen) {
+    <div class="modal-backdrop payment-backdrop" (click)="actions().closePayment()">
+      <section class="auth-modal razorpay-modal" role="dialog" aria-modal="true" aria-labelledby="razorpay-title" (click)="$event.stopPropagation()">
+        <button class="modal-close" type="button" aria-label="Close payment" (click)="actions().closePayment()">&times;</button>
+        <div class="payment-brand"><span class="payment-lock" aria-hidden="true">&#128274;</span><div><p class="eyebrow">RAZORPAY CHECKOUT</p><h2 id="razorpay-title">Complete payment</h2></div></div>
+        <p class="payment-security-note">Secure payment processed by Razorpay</p>
+        <div class="payment-summary"><span>{{ journey.source }} to {{ journey.destination }}</span><strong>{{ vm().bookingTotal | currency:'INR':'symbol':'1.0-2' }}</strong></div>
+        <form class="modal-form" (ngSubmit)="actions().continueToRazorpay()">
+          @if (vm().paymentError) {<p class="modal-error" role="alert">{{ vm().paymentError }}</p>}
+          <button class="action-button modal-submit" type="submit" [disabled]="vm().submittingBooking">{{ vm().submittingBooking ? 'Connecting to Razorpay...' : 'Continue to Razorpay · ' + (vm().bookingTotal | currency:'INR':'symbol':'1.0-2') }}</button>
+        </form>
+      </section>
+    </div>
+  }
+}

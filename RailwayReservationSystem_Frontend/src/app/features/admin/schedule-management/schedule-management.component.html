@@ -1,0 +1,12 @@
+<div class="content-heading"><div><p class="eyebrow">TIMETABLE SETUP</p><h2>{{ vm().scheduleEditId ? 'Edit schedule' : 'Add a schedule' }}</h2></div></div>
+<form class="admin-form" (ngSubmit)="actions().saveSchedule()">
+  <div class="form-grid">
+    <label class="wide-field">Train<select name="scheduleTrain" [ngModel]="vm().selectedTrainId" (ngModelChange)="actions().onTrainSelected($event)" required><option value="" disabled>Select train</option>@for (train of vm().trains; track train.trainId) {<option [value]="train.trainId">{{ train.trainNumber }} · {{ train.trainName }}</option>}</select></label>
+    <label>Departure<input name="departureTime" type="time" [(ngModel)]="vm().scheduleDraft.departureTime" required /></label>
+    <label>Arrival<input name="arrivalTime" type="time" [(ngModel)]="vm().scheduleDraft.arrivalTime" required /></label>
+    <label class="check-label"><input name="arrivalNextDay" type="checkbox" [(ngModel)]="vm().scheduleDraft.arrivalNextDay" /> Arrival is next day</label>
+    <fieldset class="days-field"><legend>Days of operation</legend><div class="day-options">@for (day of vm().weekDays; track day) {<label><input type="checkbox" [checked]="vm().selectedDays.includes(day)" (change)="actions().toggleDay(day, $event)" />{{ day }}</label>}</div></fieldset>
+  </div>
+  <div class="form-actions"><span>Choose one or more operating days.</span><div class="form-action-buttons">@if (vm().scheduleEditId) {<button class="secondary-button" type="button" (click)="actions().cancelScheduleEdit()">Cancel</button>}<button class="action-button" type="submit" [disabled]="vm().savingAdmin">{{ vm().savingAdmin ? 'Saving...' : vm().scheduleEditId ? 'Save changes' : 'Add schedule' }}</button></div></div>
+</form>
+@if (vm().schedules.length > 0) {<div class="compact-list"><h3>Schedules for selected train</h3>@for (schedule of vm().schedules; track schedule.scheduleId) {<div class="managed-row"><strong>#{{ schedule.scheduleId }}</strong><span>{{ schedule.departureTime.slice(0, 5) }} – {{ schedule.arrivalTime.slice(0, 5) }}{{ schedule.arrivalNextDay ? ' +1 day' : '' }}</span><small>{{ schedule.daysOfOperation }}</small><span class="row-actions"><button type="button" (click)="actions().editSchedule(schedule.scheduleId)">Edit</button><button type="button" (click)="actions().deleteSchedule(schedule.scheduleId)">Delete</button></span></div>}</div>}
